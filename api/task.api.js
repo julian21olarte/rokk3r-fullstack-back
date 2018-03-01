@@ -4,9 +4,10 @@ const taskService = require('../services/task.service');
 function getTasks(req, res) {
   taskService.getTasks()
     .then(tasks => {
-      if (tasks && tasks.length) {
+      if (tasks) {
         res.status(200).send(tasks);
       }
+      res.status(404).send({ status: 404, message: 'Content not found' });
     })
     .catch(error => {
       if (error) {
