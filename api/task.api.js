@@ -5,7 +5,7 @@ function getTasks(req, res) {
   taskService.getTasks()
     .then(tasks => {
       if (tasks) {
-        res.status(200).send(tasks);
+        return res.status(200).send(tasks);
       }
       res.status(404).send({ status: 404, message: 'Content not found' });
     })
@@ -18,16 +18,21 @@ function getTasks(req, res) {
 
 
 function createTask(req, res) {
+  let query = req.query;
+  if (!query.name || !query.dueDate || !query.priority) {
+    return res.status(400).send({ status: 400, message: 'Missing a required field.' });
+  }
   let task = {
-    name: req.body.name,
-    dueDate: req.body.dueDate,
-    priority: req.body.priority
+    name: query.name,
+    dueDate: query.dueDate,
+    priority: query.priority
   }
   taskService.createTask(task)
     .then(taskStored => {
       if (taskStored) {
-        res.status(200).send(taskStored);
+        return res.status(200).send(taskStored);
       }
+      res.status(400).send({ status: 400, message: 'Task could not be saved.' });
     })
     .catch(error => {
       res.status(500).send({ status: 500, message: error.message });
@@ -43,7 +48,7 @@ function deleteTask(req, res) {
   taskService.deleteTask(taskId)
     .then(taskDeleted => {
       if (taskDeleted) {
-        res.status(200).send(taskDeleted);
+        return res.status(200).send(taskDeleted);
       }
       res.status(404).send({ status: 404, validationErrors: "id is invalid" });
     })
@@ -54,18 +59,14 @@ function deleteTask(req, res) {
 
 
 function updateTask(req, res) {
-  let task = req.body;
-  let taskId = task.id;
-  if (!task.id) {
-    res.status(400).send({ status: 400, message: 'The id field is not present in document.' });
-  }
-  task._id = taskId;
+  let task = req.body.task;
+  let taskId = req.body.taskId;
   taskService.updateTask(taskId, task)
     .then(taskUpdated => {
       if (taskUpdated) {
-        res.status(200).send(taskUpdated);
+        return res.status(200).send(taskUpdated);
       }
-      res.status(401).send({ status: 401, message: `Not exist a task with id ${taskId}` })
+      res.status(401).send({ status: 401, message: `Not exist a task with id ${taskId}` });
     })
     .catch(error => {
       res.status(500).send({ status: 500, message: error.message });
