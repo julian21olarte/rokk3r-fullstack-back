@@ -4,7 +4,7 @@ const taskService = require('../services/task.service');
 function getTasks(req, res) {
   taskService.getTasks()
     .then(tasks => {
-      if (tasks && task.length) {
+      if (tasks && tasks.length) {
         res.status(200).send(tasks);
       }
     })
